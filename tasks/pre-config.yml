@@ -1,0 +1,28 @@
+---
+- name: 'Kuberntes | Create group'
+  group:
+    name: '{{ kubernetes_group }}'
+    gid: '{{ kubernetes_gid }}'
+
+- name: 'Kubernetes | Create user'
+  user:
+    name: '{{ kubernetes_user }}'
+    uid: '{{ kubernetes_uid }}'
+    group: '{{ kubernetes_group }}'
+    shell: '/bin/bash'
+
+
+- name: "Kubernetes | System Updates"
+  apt:
+    update_cache: yes
+
+- name: "Kubernetes | Disable Swap"
+  shell: |
+    swapoff -a
+
+- name: Disable SWAP in fstab
+  replace:
+    path: /etc/fstab
+    regexp: '^([^#].*?\sswap\s+sw\s+.*)$'
+    replace: '# \1'
+

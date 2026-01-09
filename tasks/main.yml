@@ -1,0 +1,13 @@
+---
+- import_tasks: pre-config.yml
+  tags: 'role::kubernetes:pre-config'
+- import_tasks: containerd.yml
+  tags: 'role::kubernetes:containerd'
+- import_tasks: install.yml
+  tags: 'role::kubernetes:install'
+- import_tasks: master.yml
+  tags: 'role::kubernetes:master'
+  when: kubernetes_is_master
+- import_tasks: worker.yml
+  tags: 'role::kubernetes:master'
+  when: not kubernetes_is_master

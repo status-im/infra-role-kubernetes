@@ -1,0 +1,61 @@
+---
+- name: "Kubernetes | Create an empty file for K8S sysctl parameters"
+  copy:
+    content: ""
+    dest: /etc/sysctl.d/99-kubernetes-cri.conf
+    force: no
+
+- name: "Kubernetes | Configure sysctl parameters for K8S"
+  lineinfile:
+    path: /etc/sysctl.d/99-kubernetes-cri.conf
+    line: "{{ item }}"
+  with_items:
+    - "net.bridge.bridge-nf-call-iptables  = 1"
+    - "net.ipv4.ip_forward                 = 1"
+    - "net.bridge.bridge-nf-call-ip6tables = 1"
+
+- name: "Kubernetes | Apply sysctl parameters"
+  command: sysctl --system
+
+
+- name: "Kubernetes | Install packages"
+  apt:
+    name: '{{ kubernetes_packages_lists }}'
+    state: present
+    update_cache: true
+
+- name: "Kubernetes | Enable the Kubelet service"
+  service:
+     name: kubelet
+     enabled: yes
+
+- name: "Kubernetes | Load br_netfilter kernel module"
+  modprobe:
+    name: br_netfilter
+    state: present
+
+
+- name: "Kubernetes | Set bridge-nf-call-iptables"
+  sysctl:
+    name: net.bridge.bridge-nf-call-iptables
+    value: 1
+
+- name: "Kubernetes | Set ip_forward"
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: 1
+
+- name: Add Kubernetes apt-key
+  get_url:
+    url: '{{ kubernetes_apt_key_url }}/Release.key'
+    dest: '{{ kubernetes_apt_key_path }}'
+    mode: "0644"
+    checksum: '{{ kubernetes_apt_key_sha256 }}'
+    force: true
+
+- name: Add Kubernetes APT repository
+  apt_repository:
+    repo: "deb [signed-by={{ kubernetes_apt_key_path }}] {{ kubernetes_apt_key_url }} /"
+    state: present
+    update_cache: yes
+

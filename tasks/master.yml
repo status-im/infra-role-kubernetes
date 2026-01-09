@@ -1,0 +1,45 @@
+---
+- name: 'Kubernetes | Create kubeadm config'
+  template:
+    src: 'kubeadm-config.yaml.j2'
+    dest: '{{ kubernetes_master_kubadmin_config_path }}'
+    force: no
+
+- name: 'Kubernetes | Initialize the cluster'
+  shell: kubeadm init --config /etc/kubernetes/kubeadm-config.yaml >> cluster_initialized.log
+  args:
+    chdir: '{{ kubernetes_user_home }}'
+    creates: cluster_initialized.log
+
+- name: 'Kubernetes | Create .kube directory'
+  become: yes
+  become_user: '{{ kubernetes_user }}'
+  file:
+    path: '{{ kubernetes_user_home }}/.kube'
+    state: directory
+    mode: 0755
+
+- name: 'Kubernetes | Copy admin.conf to User kube config'
+  copy:
+    src: /etc/kubernetes/admin.conf
+    dest: '{{ kubernetes_user_home }}/.kube/config'
+    remote_src: yes
+    owner: '{{ kubernetes_user }}'
+
+- name: Install Pod Network
+  become: yes
+  become_user: '{{ kubernetes_user }}'
+  shell: 'kubectl apply -f {{ kubernetes_pod_network_config_url }} >> pod_network_setup.log'
+  args:
+    chdir: '{{ kubernetes_user_home }}'
+    creates: pod_network_setup.log
+
+- name: 'Kubernetes | Retrieve Join Command'
+  shell: kubeadm token create --print-join-command
+  register: join_command_raw
+
+- name: 'Kubernetes | Set Join Command'
+  set_fact:
+    join_command: "{{ join_command_raw.stdout_lines[0] }}"
+
+# TODO: Save Token in Vault
