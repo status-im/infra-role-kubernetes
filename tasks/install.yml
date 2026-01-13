@@ -17,18 +17,6 @@
 - name: "Kubernetes | Apply sysctl parameters"
   command: sysctl --system
 
-
-- name: "Kubernetes | Install packages"
-  apt:
-    name: '{{ kubernetes_packages_lists }}'
-    state: present
-    update_cache: true
-
-- name: "Kubernetes | Enable the Kubelet service"
-  service:
-     name: kubelet
-     enabled: yes
-
 - name: "Kubernetes | Load br_netfilter kernel module"
   modprobe:
     name: br_netfilter
@@ -50,7 +38,7 @@
     url: '{{ kubernetes_apt_key_url }}/Release.key'
     dest: '{{ kubernetes_apt_key_path }}'
     mode: "0644"
-    checksum: '{{ kubernetes_apt_key_sha256 }}'
+    #checksum: 'sha256:{{ kubernetes_apt_key_sha256 }}'
     force: true
 
 - name: Add Kubernetes APT repository
@@ -59,3 +47,13 @@
     state: present
     update_cache: yes
 
+- name: "Kubernetes | Install packages"
+  apt:
+    name: '{{ kubernetes_packages_lists }}'
+    state: present
+    update_cache: true
+
+- name: "Kubernetes | Enable the Kubelet service"
+  service:
+     name: kubelet
+     enabled: yes

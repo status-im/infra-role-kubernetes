@@ -9,17 +9,17 @@ kubernetes_user_home: '/home/{{ kubernetes_user }}'
 
 kubernetes_packages_lists:
   - 'apt-transport-https'
-  - 'containerd.io'
-  - 'kubelet=1.29.*'
-  - 'kubeadm=1.29.*'
+  - 'containerd'
+  - 'kubelet={{ kubernetes_version }}.*'
+  - 'kubeadm={{ kubernetes_version }}.*'
 
-kubernetes_version: 'v1.29'
-kubernetes_apt_key_url: 'https://pkgs.k8s.io/core:/stable:/{{ kubernetes_version }}/deb/'
+kubernetes_version: '1.35'
+kubernetes_apt_key_url: 'https://pkgs.k8s.io/core:/stable:/v{{ kubernetes_version }}/deb/'
 kubernetes_apt_key_path: '/etc/apt/keyrings/kubernetes-apt-keyring.asc'
-kubernetes_apt_key_sha256: '7627818cf7bae52f9008c93e8b1f961f53dea11d40891778de216fb1b43be54d'
+#kubernetes_apt_key_sha256: '7627818cf7bae52f9008c93e8b1f961f53dea11d40891778de216fb1b43be54d'
 
 kubernetes_master_packages:
-  - 'kubectl=1.29.*'
+  - 'kubectl={{ kubernetes_version }}.*'
 kubernetes_master_kubadmin_config_path: '/etc/kubernetes/kubeadm-config.yaml'
 #kubernetes_master_ip: '10.10.10.10'
 
