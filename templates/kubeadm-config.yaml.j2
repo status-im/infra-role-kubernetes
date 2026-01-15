@@ -1,5 +1,19 @@
+---
+apiVersion: kubeadm.k8s.io/v1beta4
+kind: InitConfiguration
+nodeRegistration:
+  name: "{{ hostname }}"  # Replace with your master node name
+  criSocket: "unix:///var/run/containerd/containerd.sock"
+  kubeletExtraArgs:
+    - name: "node-ip"
+      value: "{{ ansible_local.wireguard.vpn_ip }}"
+localAPIEndpoint:
+  advertiseAddress: "{{ ansible_local.wireguard.vpn_ip }}"  # Master's WireGuard IP
+  bindPort: {{ kubernetes_master_api_server_port }}
+---
+apiVersion: kubeadm.k8s.io/v1beta4
 kind: ClusterConfiguration
-apiVersion: kubeadm.k8s.io/v1beta3
+controlPlaneEndpoint: "{{ ansible_local.wireguard.vpn_ip }}:{{ kubernetes_master_api_server_port }}"
 networking:
   podSubnet: "{{ kubernetes_pod_subnet }}"
 ---

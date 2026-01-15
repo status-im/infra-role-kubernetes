@@ -1,9 +1,11 @@
 ---
-- name: 'Kubernetes | Create kubeadm config'
+- name: 'Kubernetes | Create kubeadm config and basic deployment'
   template:
-    src: 'kubeadm-config.yaml.j2'
-    dest: '{{ kubernetes_master_kubadmin_config_path }}'
-    force: no
+    src: '{{ item }}.j2'
+    dest: '{{ k8s_service_path }}/{{ item }}'
+  with_items:
+    - 'kubeadm-config.yaml'
+    - 'flannel-deployment.yaml'
 
 - name: "Kubernetes | Install packages"
   apt:
@@ -18,36 +20,23 @@
     chdir: '{{ kubernetes_user_home }}'
     creates: cluster_initialized.log
 
-- name: 'Kubernetes | Create .kube directory'
-  become: yes
-  become_user: '{{ kubernetes_user }}'
-  file:
-    path: '{{ kubernetes_user_home }}/.kube'
-    state: directory
-    mode: 0755
+- name: 'Kubernetes | wait for API server to be up'
+  wait_for: "host={{ ansible_local.wireguard.vpn_ip }} port={{ kubernetes_master_api_server_port }} timeout=30"
 
-- name: 'Kubernetes | Copy admin.conf to User kube config'
-  copy:
-    src: /etc/kubernetes/admin.conf
-    dest: '{{ kubernetes_user_home }}/.kube/config'
-    remote_src: yes
+
+- name: 'Kubernetes | Update admin config permission'
+  file:
+    path: '{{ k8s_service_path }}/admin.conf'
     owner: '{{ kubernetes_user }}'
+    group: 'adm'
+    mode: 0640
 
 - name: Install Pod Network
   become: yes
   become_user: '{{ kubernetes_user }}'
-  shell: 'kubectl apply -f {{ kubernetes_pod_network_config_url }} >> pod_network_setup.log'
+  shell: 'kubectl apply -f {{ k8s_service_path }}/flannel-deployment.yaml >> pod_network_setup.log'
   args:
     chdir: '{{ kubernetes_user_home }}'
     creates: pod_network_setup.log
 
-- name: 'Kubernetes | Retrieve Join Command'
-  shell: kubeadm token create --print-join-command
-  register: join_command_raw
-
-- name: 'Kubernetes | Set Join Command'
-  set_fact:
-    join_command: "{{ join_command_raw.stdout_lines[0] }}"
-
-- name: "Print "
 # TODO: Save Token in Vault

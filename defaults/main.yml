@@ -1,6 +1,9 @@
 ---
 kubernetes_is_master: False
 
+k8s_service_name: 'k8s'
+k8s_service_path: '/etc/kubernetes'
+
 kubernetes_user: 'kubernetes'
 kubernetes_group: 'kub'
 kubernetes_uid: 1000
@@ -22,9 +25,19 @@ kubernetes_master_packages:
   - 'kubectl={{ kubernetes_version }}.*'
 kubernetes_master_kubadmin_config_path: '/etc/kubernetes/kubeadm-config.yaml'
 #kubernetes_master_ip: '10.10.10.10'
+# Api Server
+kubernetes_master_api_server_port: 6443
+# Controller Manager
+kubernetes_master_controller_manager_port: 10257
+# Scheduler
+kubernetes_master_scheduler_port: 10259
+# etc
+kubernetes_master_etcd_port_client: 2379
+kubernetes_master_etcd_port_peers: 2380
+kubernetes_master_etcd_port_metrics: 2381
 
 kubernetes_pod_network_config_url: 'https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml'
 kubernetes_pod_subnet: '10.224.0.0/16'
-
+kubernetes_service_subnet: '10.96.0.0/12'
 #kubernetes_worker_join_command: 'kubctl join ---'
 

@@ -11,3 +11,5 @@
 - import_tasks: worker.yml
   tags: 'role::kubernetes:worker'
   when: not kubernetes_is_master
+- import_tasks: consul.yml
+  tags: 'role::kubernetes:consul'

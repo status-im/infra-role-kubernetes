@@ -1,0 +1,65 @@
+---
+- name:         Create Consul service definition for master node
+  include_role: name=infra-role-consul-service
+  when:         kubernetes_is_master
+  vars:
+    consul_config_name: 'kubernetes-master'
+    consul_services:
+      - name:     'k8s-api-server'
+        id:       'k8s-api-server-{{ hostname }}'
+        tags:     ['k8s', 'api-server']
+        port:     '{{ kubernetes_master_api_server_port }}'
+        address:  '{{ ansible_local.wireguard.address }}'
+        checks:
+          - id: 'k8s-api-server-status'
+            name: 'K8S Api server'
+            type: 'tcp'
+            tcp: '{{ ansible_local.wireguard.address }}:{{ kubernetes_master_api_server_port }}'
+#      - name:     'k8s-controller-manager'
+#        id:       'k8s-controller-manager-{{ hostname }}'
+#        tags:     ['k8s', 'controller-manager']
+#        port:     '{{ kubernetes_master_controller_manager_port }}'
+#        address:  '{{ ansible_local.wireguard.address }}'
+#        checks:
+#          - id: 'k8s-controller-manager-status'
+#            name: 'K8S Controller Manager'
+#            type: 'tcp'
+#            http: '{{ ansible_local.wireguard.address }}:{{ kubernetes_master_controller_manager_port }}'
+#      - name:     'k8s-scheduler'
+#        id:       'k8s-scheduler-{{ hostname }}'
+#        tags:     ['k8s', 'scheduler']
+#        port:     '{{ kubernetes_master_scheduler_port }}'
+#        address:  '{{ ansible_local.wireguard.address }}'
+#        checks:
+#          - id: 'k8s-scheduler-status'
+#            name: 'K8S Scheduler'
+#            type: 'http'
+#            http: 'http://localhost:{{ kubernetes_master_scheduler_port }}/livez'
+      - name:     'k8s-etcd-metrics'
+        id:       'k8s-etcd-{{ hostname }}'
+        tags:     ['k8s', 'etcd']
+        port:     '{{ kubernetes_master_etcd_port_metrics }}'
+        address:  '{{ ansible_local.wireguard.address }}'
+        checks:
+          - id: 'k8s-etcd-status'
+            name: 'K8S etcd Metrics'
+            type: 'http'
+            http: 'http://{{ localhost:{{ kubernetes_master_etcd_port_metrics }}/metrics'
+
+#- name:         Create Consul service definition for worker node
+#  include_role: name=infra-role-consul-service
+#  when:         not kubernetes_is_master
+#  vars:
+#    consul_config_name: 'kubernetes-master'
+#    consul_services:
+#      - name:     'k8s-api-server'
+#        id:       'k8s-api-server-{{ hostname }}'
+#        tags:     ['k8s', 'api-server']
+#        port:     '{{ kubernetes_master_api_server_port }}'
+#        address:  '{{ ansible_local.wireguard.address }}'
+#        checks:
+#          - id: 'k8s-api-server-{{ hostname }}-status'
+#            name: 'K8S Api server'
+#            type: 'http'
+#            http: 'http://localhost:{{ kubernetes_master_api_server_port }}/livez'
+
