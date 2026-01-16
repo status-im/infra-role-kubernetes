@@ -4,7 +4,7 @@
   wait_for: "host={{ kuberntes_master_ip | mandatory }} port=6443 timeout=1"
 
 - name: 'Kubernetes | Join worker to cluster'
-  shell: "{{ kubernetes_worker_join_command }} >> node_joined.log"
+  shell: "{{ k8s_worker_join_command }} >> node_joined.log"
   args:
-    chdir: '{{ kubernetes_user_home }}'
+    chdir: '{{ k8s_user_home }}'
     creates: node_joined.log

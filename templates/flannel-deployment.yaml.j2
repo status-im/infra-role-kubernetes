@@ -90,7 +90,7 @@ data:
     }
   net-conf.json: |
     {
-      "Network": "{{ kubernetes_pod_subnet }}",
+      "Network": "{{ k8s_pod_subnet }}",
       "EnableNFTables": false,
       "Backend": {
         "Type": "vxlan"

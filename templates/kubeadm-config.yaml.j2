@@ -6,16 +6,16 @@ nodeRegistration:
   criSocket: "unix:///var/run/containerd/containerd.sock"
   kubeletExtraArgs:
     - name: "node-ip"
-      value: "{{ ansible_local.wireguard.vpn_ip }}"
+      value: "{{ k8s_master_ip }}"
 localAPIEndpoint:
-  advertiseAddress: "{{ ansible_local.wireguard.vpn_ip }}"  # Master's WireGuard IP
-  bindPort: {{ kubernetes_master_api_server_port }}
+  advertiseAddress: "{{ k8s_master_ip }}"  # Master's WireGuard IP
+  bindPort: {{ k8s_master_api_server_port }}
 ---
 apiVersion: kubeadm.k8s.io/v1beta4
 kind: ClusterConfiguration
-controlPlaneEndpoint: "{{ ansible_local.wireguard.vpn_ip }}:{{ kubernetes_master_api_server_port }}"
+controlPlaneEndpoint: "{{ k8s_master_ip }}:{{ k8s_master_api_server_port }}"
 networking:
-  podSubnet: "{{ kubernetes_pod_subnet }}"
+  podSubnet: "{{ k8s_pod_subnet }}"
 ---
 kind: KubeletConfiguration
 apiVersion: kubelet.config.k8s.io/v1beta1

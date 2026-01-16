@@ -7,9 +7,9 @@
   tags: 'role::kubernetes:containerd'
 - import_tasks: master.yml
   tags: 'role::kubernetes:master'
-  when: kubernetes_is_master
+  when: k8s_is_master
 - import_tasks: worker.yml
   tags: 'role::kubernetes:worker'
-  when: not kubernetes_is_master
+  when: not k8s_is_master
 - import_tasks: consul.yml
   tags: 'role::kubernetes:consul'
