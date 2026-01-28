@@ -18,7 +18,7 @@
   shell: kubeadm init --config /etc/kubernetes/kubeadm-config.yaml >> cluster_initialized.log
   args:
     chdir: '{{ k8s_user_home }}'
-    creates: cluster_initialized.log
+    stdin: cluster_initialized.log
 
 - name: 'Kubernetes | wait for API server to be up'
   wait_for: "host={{ k8s_master_ip }} port={{ k8s_master_api_server_port }} timeout=30"
@@ -37,7 +37,7 @@
   shell: 'kubectl apply -f {{ k8s_service_path }}/flannel-deployment.yaml >> pod_network_setup.log'
   args:
     chdir: '{{ k8s_user_home }}'
-    creates: pod_network_setup.log
+    stdin: pod_network_setup.log
   environment:
     KUBECONFIG: '/etc/kubernetes/admin.conf'
 
