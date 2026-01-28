@@ -1,4 +1,10 @@
 ---
+- name: 'Kubernetes | Verify if kubelet is running'
+  tags: always
+  ansible.builtin.service:
+    name: '{{ k8s_kubelet_service_name }}'
+  register: kubelet_status
+
 - import_tasks: pre-config.yml
   tags: 'role::kubernetes:pre-config'
 - import_tasks: install.yml
@@ -7,9 +13,13 @@
   tags: 'role::kubernetes:containerd'
 - import_tasks: master.yml
   tags: 'role::kubernetes:master'
-  when: k8s_is_master
+  when:
+    - k8s_is_master
+    - kubelet_status.status != 'started'
 - import_tasks: worker.yml
   tags: 'role::kubernetes:worker'
-  when: not k8s_is_master
+  when:
+    - not k8s_is_master
+    - kubelet_status.status not 'started'
 - import_tasks: consul.yml
   tags: 'role::kubernetes:consul'

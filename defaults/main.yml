@@ -43,5 +43,5 @@ k8s_pod_subnet: '192.168.0.0/16'
 k8s_service_subnet: '10.96.0.0/12'
 #k8s_worker_join_command: 'kubctl join ---'
 
-
+k8s_kubelet_service_name: 'kubelet'
 k8s_kubelet_port: 10248
