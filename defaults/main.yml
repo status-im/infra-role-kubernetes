@@ -38,10 +38,18 @@ k8s_master_etcd_port_peers: 2380
 k8s_master_etcd_port_metrics: 2381
 
 k8s_pod_network_config_url: 'https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml'
-#k8s_pod_subnet: '10.224.0.0/16'
-k8s_pod_subnet: '192.168.0.0/16'
-k8s_service_subnet: '10.96.0.0/12'
-#k8s_worker_join_command: 'kubctl join ---'
+
+k8s_pod_subnet: '172.30.64.0/18'
+k8s_service_subnet: '172.30.0.0/18'
+
+k8s_cluster_token: ~
+k8s_ca_cert_hashes: ~
 
 k8s_kubelet_service_name: 'kubelet'
 k8s_kubelet_port: 10248
+
+k8s_consul_port: 8500
+k8s_consul_host: 'localhost'
+k8s_consul_addr: '{{ k8s_consul_host }}:{{ k8s_consul_port }}'
+k8s_consul_catalog_url: 'http://{{ k8s_consul_addr }}/v1/catalog'
+

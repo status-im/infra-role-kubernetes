@@ -1,10 +1,38 @@
 ---
+- name: 'Kubernetes | Master discover - Get Consul Datacenter'
+  uri:
+    url: '{{ k8s_consul_catalog_url }}/datacenters'
+  register: data_centers
 
-- name: 'Kubernetes | Enable TCP port 6443 (On Master) is able to connect from Worker'
-  wait_for: "host={{ kuberntes_master_ip | mandatory }} port=6443 timeout=1"
+- name: 'Kubernetes | Master Discover - Get k8s api server address'
+  uri:
+    # WARNING: The tag is important to not match other clusters.
+    url: '{{ k8s_consul_catalog_url }}/service/k8s-api-server?tag=kub-{{ env }}-{{ stage }}&dc={{ item }}'
+  with_items: '{{ data_centers.json }}'
+  register: k8s_api_server_services_raw
+
+- name: 'Kubernetes | Master Discover - Extract Memcached IP and port'
+  set_fact:
+    k8s_masters_address: |
+      {{ k8s_api_server_services_raw.results
+      | sum(attribute="json", start=[])
+      | json_query("[].[ServiceAddress, ServicePort]")
+      | map('join', ':') | list }}
+
+- name: Kub
+  debug:
+    msg: '{{ item }}'
+  with_items: '{{ k8s_masters_address }}'
+
+- name: 'Kubernetes | Create kubeadm config for worker'
+  template:
+    src: '{{ item }}.j2'
+    dest: '{{ k8s_service_path }}/{{ item }}'
+  with_items:
+    - 'worker-config.yaml'
 
 - name: 'Kubernetes | Join worker to cluster'
-  shell: "{{ k8s_worker_join_command }} >> node_joined.log"
+  shell: "kubeadm join --config {{ k8s_service_path }}/worker-config.yaml"
   args:
     chdir: '{{ k8s_user_home }}'
     creates: node_joined.log

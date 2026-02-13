@@ -20,6 +20,6 @@
   tags: 'role::kubernetes:worker'
   when:
     - not k8s_is_master
-    - kubelet_status.status not 'started'
+    - kubelet_status.status != 'started'
 - import_tasks: consul.yml
   tags: 'role::kubernetes:consul'

@@ -1,0 +1,30 @@
+---
+apiVersion: kubeadm.k8s.io/v1beta4
+caCertPath: /etc/kubernetes/pki/ca.crt
+discovery:
+  bootstrapToken:
+    apiServerEndpoint: '{{ k8s_masters_address[0] }}'
+    caCertHashes:
+      - {{ k8s_ca_cert_hashes | mandatory }}
+    token: '{{ k8s_cluster_token | mandatory }}'
+  tlsBootstrapToken: '{{ k8s_cluster_token | mandatory }}'
+kind: JoinConfiguration
+nodeRegistration:
+  criSocket: unix:///var/run/containerd/containerd.sock
+  imagePullPolicy: IfNotPresent
+  imagePullSerial: true
+  kubeletExtraArgs:
+  - name: address
+    value: '{{ ansible_local.wireguard.vpn_ip }}'
+  - name: node-ip
+    value: '{{ ansible_local.wireguard.vpn_ip }}'
+  name: {{ hostname }}
+  taints: null
+timeouts:
+  controlPlaneComponentHealthCheck: 4m0s
+  discovery: 5m0s
+  etcdAPICall: 2m0s
+  kubeletHealthCheck: 4m0s
+  kubernetesAPICall: 1m0s
+  tlsBootstrap: 5m0s
+  upgradeManifests: 5m0s

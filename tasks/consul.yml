@@ -7,7 +7,7 @@
     consul_services:
       - name:     'k8s-api-server'
         id:       'k8s-api-server-{{ hostname }}'
-        tags:     ['k8s', 'api-server']
+        tags:     ['k8s', 'api-server', 'kub-{{ env }}-{{ stage }}']
         port:     '{{ k8s_master_api_server_port }}'
         address:  '{{ ansible_local.wireguard.address }}'
         checks:
