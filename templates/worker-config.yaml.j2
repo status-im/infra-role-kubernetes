@@ -18,7 +18,7 @@ nodeRegistration:
     value: '{{ ansible_local.wireguard.vpn_ip }}'
   - name: node-ip
     value: '{{ ansible_local.wireguard.vpn_ip }}'
-  name: {{ hostname }}
+  name: {{ ansible_hostname }}
   taints: null
 timeouts:
   controlPlaneComponentHealthCheck: 4m0s

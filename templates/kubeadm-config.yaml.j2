@@ -2,7 +2,7 @@
 apiVersion: kubeadm.k8s.io/v1beta4
 kind: InitConfiguration
 nodeRegistration:
-  name: "{{ hostname }}"  # Replace with your master node name
+  name: "{{ ansible_hostname }}"  # Replace with your master node name
   criSocket: "unix:///var/run/containerd/containerd.sock"
   kubeletExtraArgs:
     - name: "node-ip"
@@ -17,7 +17,7 @@ controlPlaneEndpoint: "{{ k8s_master_ip }}:{{ k8s_master_api_server_port }}"
 networking:
   serviceSubnet: "{{ k8s_service_subnet }}"
   podSubnet: "{{ k8s_pod_subnet }}"
-  dnsDomain: 'cluster.local'
+  dnsDomain: "{{ k8s_cluster_domain }}"
 ---
 kind: KubeletConfiguration
 apiVersion: kubelet.config.k8s.io/v1beta1

@@ -41,6 +41,7 @@ k8s_pod_network_config_url: 'https://raw.githubusercontent.com/flannel-io/flanne
 
 k8s_pod_subnet: '172.30.64.0/18'
 k8s_service_subnet: '172.30.0.0/18'
+k8s_cluster_domain: '{{ env }}.{{ stage }}'
 
 k8s_cluster_token: ~
 k8s_ca_cert_hashes: ~
