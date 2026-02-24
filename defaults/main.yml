@@ -10,9 +10,23 @@ k8s_uid: 1000
 k8s_gid: 1000
 k8s_user_home: '/home/{{ k8s_user }}'
 
+k8s_containerd_url: 'https://github.com/containerd/containerd/releases/download/v{{ k8s_containerd_version}}/containerd-{{ k8s_containerd_version}}-linux-amd64.tar.gz'
+k8s_containerd_version: '2.2.1'
+k8s_containerd_tarball_sha256: 'sha256:f5d8e90ecb6c1c7e33ecddf8cc268a93b9e5b54e0e850320d765511d76624f41'
+k8s_containerd_tmp_path: '/tmp/containerd-{{ k8s_containerd_version }}.tar.gz'
+
+k8s_packages_dependencies:
+  - apt-transport-https
+  - ca-certificates
+  - curl
+  - gnupg
+  - lsb-release
+
+k8s_containerd_gpg_url: 'https://download.docker.com/linux/ubuntu/gpg'
+k8s_containerd_apt_repo: 'deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable'
+k8s_containerd_config_dir: '/etc/containerd'
+
 k8s_packages_lists:
-  - 'apt-transport-https'
-  - 'containerd'
   - 'kubelet={{ k8s_version }}.*'
   - 'kubeadm={{ k8s_version }}.*'
 

@@ -1,5 +1,6 @@
 ---
 apiVersion: kubeadm.k8s.io/v1beta4
+kind: JoinConfiguration
 caCertPath: /etc/kubernetes/pki/ca.crt
 discovery:
   bootstrapToken:
@@ -8,7 +9,6 @@ discovery:
       - {{ k8s_ca_cert_hashes | mandatory }}
     token: '{{ k8s_cluster_token | mandatory }}'
   tlsBootstrapToken: '{{ k8s_cluster_token | mandatory }}'
-kind: JoinConfiguration
 nodeRegistration:
   criSocket: unix:///var/run/containerd/containerd.sock
   imagePullPolicy: IfNotPresent

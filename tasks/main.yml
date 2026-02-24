@@ -5,8 +5,8 @@
     name: '{{ k8s_kubelet_service_name }}'
   register: kubelet_status
 
-- import_tasks: pre-config.yml
-  tags: 'role::kubernetes:pre-config'
+- import_tasks: config.yml
+  tags: 'role::kubernetes:config'
 - import_tasks: install.yml
   tags: 'role::kubernetes:install'
 - import_tasks: containerd.yml

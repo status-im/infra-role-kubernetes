@@ -1,0 +1,61 @@
+---
+- name: 'Kuberntes | Create group'
+  group:
+    name: '{{ k8s_group }}'
+    gid: '{{ k8s_gid }}'
+
+- name: 'Kubernetes | Create user'
+  user:
+    name: '{{ k8s_user }}'
+    uid: '{{ k8s_uid }}'
+    group: '{{ k8s_group }}'
+    shell: '/bin/bash'
+
+
+- name: "Kubernetes | System Updates"
+  apt:
+    update_cache: yes
+
+- name: "Kubernetes | Disable Swap"
+  shell: |
+    swapoff -a
+
+- name: Disable SWAP in fstab
+  replace:
+    path: /etc/fstab
+    regexp: '^([^#].*?\sswap\s+sw\s+.*)$'
+    replace: '# \1'
+
+- name: "Kubernetes | Create an empty file for K8S sysctl parameters"
+  copy:
+    content: ""
+    dest: /etc/sysctl.d/99-kubernetes-cri.conf
+    force: yes
+
+- name: "Kubernetes | Configure sysctl parameters for K8S"
+  lineinfile:
+    path: /etc/sysctl.d/99-kubernetes-cri.conf
+    line: "{{ item }}"
+  with_items:
+    - "net.bridge.bridge-nf-call-iptables  = 1"
+    - "net.ipv4.ip_forward                 = 1"
+    - "net.bridge.bridge-nf-call-ip6tables = 1"
+
+- name: "Kubernetes | Apply sysctl parameters"
+  command: sysctl --system
+
+- name: "Kubernetes | Load br_netfilter kernel module"
+  modprobe:
+    name: br_netfilter
+    state: present
+
+
+- name: "Kubernetes | Set bridge-nf-call-iptables"
+  sysctl:
+    name: net.bridge.bridge-nf-call-iptables
+    value: 1
+
+- name: "Kubernetes | Set ip_forward"
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: 1
