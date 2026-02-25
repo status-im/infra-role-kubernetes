@@ -18,6 +18,12 @@ networking:
   serviceSubnet: "{{ k8s_service_subnet }}"
   podSubnet: "{{ k8s_pod_subnet }}"
   dnsDomain: "{{ k8s_cluster_domain }}"
+apiServer:
+  certSANs:
+    - "{{ k8s_master_ip }}"
+    - "{{ hostname }}.wg"
+    - "0.0.0.0"
+    - "{{ k8s_controler_additional_san }}"
 ---
 kind: KubeletConfiguration
 apiVersion: kubelet.config.k8s.io/v1beta1

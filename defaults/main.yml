@@ -44,6 +44,7 @@ k8s_master_kubadmin_config_path: '/etc/kubernetes/kubeadm-config.yaml'
 k8s_master_api_server_port: 6443
 # Controller Manager
 k8s_master_controller_manager_port: 10257
+k8s_controler_additional_san: '{{ hostname }}.status.im'
 # Scheduler
 k8s_master_scheduler_port: 10259
 # etc
