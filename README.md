@@ -24,3 +24,21 @@ kubeadm join ${master_ip}:{master_port} --token ${some_token} --discovery-token-
 k8s_ca_cert_hashes: '${token}'
 k8s_cluster_token: '${hash}'
 ```
+
+
+### Firewall configuration
+
+The deployement should, have the following config:
+```
+open_ports_list:
+  kubernetes:
+    - { source: '172.30.64.0/18', comment: 'Allow trafic from Pod Network'   }
+    - { dest: '172.30.64.0/18',   comment: 'Allow trafic to Pod Network'     }
+    - { dest: '172.30.0.0/18',    comment: 'Allow trafic to Service Network' }
+ ```
+ In case of a Master node, the port `6443` should be open also:
+ ```
+   kube-api-server:
+    - { port: '6443', iifname: 'wg0', ipset: 'bi.test', comment: 'Access for Nodes to join master'}
+
+```
