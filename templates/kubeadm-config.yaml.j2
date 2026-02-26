@@ -37,3 +37,12 @@ kubeReserved:
   memory: 50M
 enforceNodeAllocatable:
 - pods
+---
+apiVersion: kubeproxy.config.k8s.io/v1alpha1
+kind: KubeProxyConfiguration
+mode: "nftables" # This is the magic line
+# Optional: Ensure it doesn't try to use legacy if it fails
+iptables:
+  masqueradeAll: false
+# Optional: Define specific node addresses if you have multiple interfaces
+nodePortAddresses: ["primary"]
