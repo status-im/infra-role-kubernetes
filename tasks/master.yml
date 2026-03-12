@@ -5,7 +5,7 @@
     dest: '{{ k8s_service_path }}/{{ item }}'
   with_items:
     - 'kubeadm-config.yaml'
-    - 'flannel-deployment.yaml'
+    - 'calico.yaml'
 
 - name: "Kubernetes | Install packages"
   apt:
@@ -17,7 +17,7 @@
 - name: 'Kubernetes | Initialize the cluster'
   shell: kubeadm init --config /etc/kubernetes/kubeadm-config.yaml >> cluster_initialized.log
   args:
-    chdir: '{{ k8s_user_home }}'
+    chdir: '{{ k8s_service_logs_path }}'
     stdin: cluster_initialized.log
 
 - name: 'Kubernetes | wait for API server to be up'
@@ -27,16 +27,15 @@
 - name: 'Kubernetes | Update admin config permission'
   file:
     path: '{{ k8s_service_path }}/admin.conf'
-    owner: '{{ k8s_user }}'
+    owner: 'root'
     group: 'adm'
     mode: 0640
 
 - name: Install Pod Network
   become: yes
-  become_user: '{{ k8s_user }}'
-  shell: 'kubectl apply -f {{ k8s_service_path }}/flannel-deployment.yaml >> pod_network_setup.log'
+  shell: 'kubectl apply -f {{ k8s_service_path }}/calico.yaml >> pod_network_setup.log'
   args:
-    chdir: '{{ k8s_user_home }}'
+    chdir: '{{ k8s_service_logs_path }}'
     stdin: pod_network_setup.log
   environment:
     KUBECONFIG: '/etc/kubernetes/admin.conf'

@@ -4,13 +4,12 @@
     name: '{{ k8s_group }}'
     gid: '{{ k8s_gid }}'
 
-- name: 'Kubernetes | Create user'
-  user:
-    name: '{{ k8s_user }}'
-    uid: '{{ k8s_uid }}'
-    group: '{{ k8s_group }}'
-    shell: '/bin/bash'
-
+- name: 'Kuberntes | Create logs directory'
+  file:
+    path:     '{{ k8s_service_logs_path }}'
+    state:    directory
+    owner:    'root'
+    group:    '{{ k8s_group }}'
 
 - name: "Kubernetes | System Updates"
   apt:

@@ -3,12 +3,10 @@ k8s_is_master: False
 
 k8s_service_name: 'k8s'
 k8s_service_path: '/etc/kubernetes'
+k8s_service_logs_path: '/var/lib/kuberntes'
 
-k8s_user: 'kubernetes'
 k8s_group: 'kub'
-k8s_uid: 1000
 k8s_gid: 1000
-k8s_user_home: '/home/{{ k8s_user }}'
 
 k8s_containerd_url: 'https://github.com/containerd/containerd/releases/download/v{{ k8s_containerd_version}}/containerd-{{ k8s_containerd_version}}-linux-amd64.tar.gz'
 k8s_containerd_version: '2.2.1'

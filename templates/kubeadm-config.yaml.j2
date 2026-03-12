@@ -29,6 +29,7 @@ kind: KubeletConfiguration
 apiVersion: kubelet.config.k8s.io/v1beta1
 runtimeRequestTimeout: "15m"
 cgroupDriver: "systemd"
+resolvConf: /run/systemd/resolve/resolv.conf
 systemReserved:
   cpu: 100m
   memory: 350M

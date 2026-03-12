@@ -34,5 +34,5 @@
 - name: 'Kubernetes | Join worker to cluster'
   shell: "kubeadm join --config {{ k8s_service_path }}/worker-config.yaml"
   args:
-    chdir: '{{ k8s_user_home }}'
+    chdir: '{{ k8s_service_logs_path }}'
     creates: node_joined.log
