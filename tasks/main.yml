@@ -16,6 +16,11 @@
   when:
     - k8s_is_master
     - kubelet_status.status != 'started'
+- import_tasks: save-token.yml
+  tags: 'role::kubernetes:save-token'
+  when:
+    - k8s_is_master
+    #- kubelet_status.status == 'started'
 - import_tasks: worker.yml
   tags: 'role::kubernetes:worker'
   when:

@@ -1,0 +1,30 @@
+# TODO: Save Token in Vault
+- name: 'Kubernetes | Generate new token'
+  shell: 'kubeadm token create --print-join-command --ttl 0'
+  register: token_var
+  no_log: true
+
+- name: 'Kubernetes | Extract token'
+  ansible.builtin.set_fact:
+    token: "{{ token_var.stdout | regex_search('--token ([^ ]+)', '\\1') | first }}"
+    token_ca_cert_hash: "{{ token_var.stdout | regex_search('--discovery-token-ca-cert-hash ([^ ]+)', '\\1') | first }}"
+  no_log: true
+
+- name: 'Kubernetes | Save a secret to HashiCorp Vault via REST API'
+  ansible.builtin.uri:
+    url: "{{ vault_addr }}/v1/secret/data/{{ k8s_master_vault_token_path }}"
+    method: POST
+    ca_path:     '{{ vault_ca_path }}'
+    client_cert: '{{ vault_client_cert_path }}'
+    client_key:  '{{ vault_client_key_path }}'
+    headers:
+      X-Vault-Token: "{{ vault_token }}"
+      Content-Type: "application/json"
+    body_format: json
+    body:
+      data:
+        token: "{{ token }}"
+        token-ca-cert-hash: "{{ token_ca_cert_hash }}"
+    status_code: [200, 204]
+  no_log: true
+
