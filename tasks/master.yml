@@ -6,6 +6,7 @@
   with_items:
     - 'kubeadm-config.yaml'
     - 'calico.yaml'
+    - 'kubernetes-sigs.yaml'
 
 - name: "Kubernetes | Install packages"
   apt:
@@ -31,7 +32,7 @@
     group: 'adm'
     mode: 0640
 
-- name: Install Pod Network
+- name: 'Kubernetes | Install Pod Network'
   become: yes
   shell: 'kubectl apply -f {{ k8s_service_path }}/calico.yaml >> pod_network_setup.log'
   args:
@@ -40,4 +41,8 @@
   environment:
     KUBECONFIG: '/etc/kubernetes/admin.conf'
 
-# TODO: Save Token in Vault
+- name: 'Kubernetes | Install nodes metrics'
+  become: yes
+  shell: 'kubectl apply -f {{ k8s_service_path }}/kubernetes-sigs.yaml'
+  environment:
+    KUBECONFIG: '/etc/kubernetes/admin.conf'
