@@ -50,6 +50,9 @@ k8s_master_etcd_port_client: 2379
 k8s_master_etcd_port_peers: 2380
 k8s_master_etcd_port_metrics: 2381
 
+k8s_calico_mtu: 1360
+
+
 # Vaul config for saving the joining token
 k8s_master_vault_token_path: '{{ env }}/{{ stage }}/kubernetes'
 vault_token: '{{ lookup("ansible.builtin.env", "VAULT_TOKEN")}}'
