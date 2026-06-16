@@ -8,7 +8,7 @@ nodeRegistration:
     - name: "node-ip"
       value: "{{ k8s_master_ip }}"
 localAPIEndpoint:
-  advertiseAddress: "{{ k8s_master_ip }}"  # Master's WireGuard IP
+  advertiseAddress: "0.0.0.0"  # Master's WireGuard IP
   bindPort: {{ k8s_master_api_server_port }}
 ---
 apiVersion: kubeadm.k8s.io/v1beta4
@@ -21,8 +21,8 @@ networking:
 apiServer:
   certSANs:
     - "{{ k8s_master_ip }}"
-    - "{{ hostname }}.wg"
     - "0.0.0.0"
+    - "{{ hostname }}.wg"
     - "{{ k8s_controler_additional_san }}"
 ---
 kind: KubeletConfiguration
@@ -41,9 +41,6 @@ enforceNodeAllocatable:
 ---
 apiVersion: kubeproxy.config.k8s.io/v1alpha1
 kind: KubeProxyConfiguration
-mode: "nftables" # This is the magic line
-# Optional: Ensure it doesn't try to use legacy if it fails
+mode: "nftables"
 iptables:
   masqueradeAll: false
-# Optional: Define specific node addresses if you have multiple interfaces
-nodePortAddresses: ["primary"]

@@ -63,8 +63,8 @@ vault_client_key_path:  '/certs/vault-client.key'
 
 k8s_pod_network_config_url: 'https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml'
 
-k8s_pod_subnet: '172.30.64.0/18'
-k8s_service_subnet: '172.30.0.0/18'
+k8s_pod_subnet: '192.168.0.0/16'
+k8s_service_subnet: '172.16.0.0/12'
 k8s_cluster_domain: '{{ env }}.{{ stage }}'
 
 k8s_cluster_token: ~

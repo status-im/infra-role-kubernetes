@@ -7238,6 +7238,8 @@ spec:
             # no effect. This should fall within `--cluster-cidr`.
             - name: CALICO_IPV4POOL_CIDR
               value: "{{ k8s_pod_subnet }}"
+            - name: IP_AUTODETECTION_METHOD
+              value: "interface=wg0"
             # Disable file logging so `kubectl logs` works.
             - name: CALICO_DISABLE_FILE_LOGGING
               value: "true"
