@@ -16,14 +16,10 @@
 
 
 - name: 'Kubernetes | Initialize the cluster'
-  shell: kubeadm init --config /etc/kubernetes/kubeadm-config.yaml >> cluster_initialized.log
-  args:
-    chdir: '{{ k8s_service_logs_path }}'
-    stdin: cluster_initialized.log
+  shell: 'kubeadm init --config /etc/kubernetes/kubeadm-config.yaml'
 
 - name: 'Kubernetes | wait for API server to be up'
   wait_for: "host={{ k8s_master_ip }} port={{ k8s_master_api_server_port }} timeout=30"
-
 
 - name: 'Kubernetes | Update admin config permission'
   file:
@@ -34,10 +30,7 @@
 
 - name: 'Kubernetes | Install Pod Network'
   become: yes
-  shell: 'kubectl apply -f {{ k8s_service_path }}/calico.yaml >> pod_network_setup.log'
-  args:
-    chdir: '{{ k8s_service_logs_path }}'
-    stdin: pod_network_setup.log
+  shell: 'kubectl apply -f {{ k8s_service_path }}/calico.yaml'
   environment:
     KUBECONFIG: '/etc/kubernetes/admin.conf'
 

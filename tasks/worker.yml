@@ -11,7 +11,7 @@
   with_items: '{{ data_centers.json }}'
   register: k8s_api_server_services_raw
 
-- name: 'Kubernetes | Master Discover - Extract Memcached IP and port'
+- name: 'Kubernetes | Master Discover - Extract master IP and port'
   set_fact:
     k8s_masters_address: |
       {{ k8s_api_server_services_raw.results
@@ -19,10 +19,6 @@
       | json_query("[].[ServiceAddress, ServicePort]")
       | map('join', ':') | list }}
 
-- name: Kub
-  debug:
-    msg: '{{ item }}'
-  with_items: '{{ k8s_masters_address }}'
 
 - name: 'Kubernetes | Create kubeadm config for worker'
   template:
