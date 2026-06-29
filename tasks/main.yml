@@ -20,7 +20,10 @@
   tags: 'role::kubernetes:save-token'
   when:
     - k8s_is_master
-    #- kubelet_status.status == 'started'
+- import_tasks: backup.yml
+  tags: 'role::kubernetes:backup'
+  when:
+    - k8s_is_master
 - import_tasks: worker.yml
   tags: 'role::kubernetes:worker'
   when:
