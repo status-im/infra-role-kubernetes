@@ -1,0 +1,8 @@
+---
+- name: 'Kubernetes Upgrade Kubeadmin'
+  import_tasks: upgrade-kubeadmin.yml
+  tags: ['role::kubernetes:upgrade', 'role::kubernetes:upgrade:kubeadmin']
+
+- name: 'Kubernetes Upgrade Kubelet'
+  import_tasks: upgrade-kubelet.yml
+  tags: ['role::kubernetes:upgrade', 'role::kubernetes:upgrade:kubelet']

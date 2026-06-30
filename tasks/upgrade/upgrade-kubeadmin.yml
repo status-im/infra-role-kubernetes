@@ -1,0 +1,86 @@
+---
+- name: 'Kub Upgrade | Update Kubernetes APT repository version'
+  ansible.builtin.replace:
+    path: '/etc/apt/sources.list.d/{{ k8s_apt_repo_filename }}'
+    regexp: '(https://pkgs\.k8s\.io/core:/stable:/)v[^/]+(/deb/ /)'
+    replace: '\1v{{ k8s_upgrade_version }}\2'
+    backup: yes
+
+- name: 'Kub Upgrade | Upgrade packages'
+  apt:
+    update_cache: true
+
+- name: 'Kub Upgrade | Check available kubeadm versions'
+  shell: apt-cache madison kubeadm
+  register: kubeadm_versions
+  changed_when: false
+
+- name: 'kub Upgrade | List available version'
+  debug:
+    msg: '{{ kubeadm_versions.stdout }}'
+
+- name: 'Kub Upgrade | Verify kubeadm {{ k8s_upgrade_version }}.x is available'
+  assert:
+    that: "'{{ k8s_upgrade_version }}.' in kubeadm_versions.stdout"
+    fail_msg: "kubeadm version {{ k8s_upgrade_version }}.x is not available in the repository"
+
+- name: 'Kub Upgrade | Unhold kubeadm package'
+  shell: apt-mark unhold kubeadm
+  register: unhold_result
+  changed_when: "'kubeadm was not held' in unhold_result.stdout"
+  failed_when: false
+
+- name: 'Kub Upgrade | Install kubeadm {{ k8s_upgrade_version }}'
+  apt:
+    name: kubeadm={{ k8s_upgrade_version }}.*
+    state: present
+    allow_downgrade: yes
+    update_cache: yes
+
+- name: 'Kub Upgrade | Hold kubeadm package'
+  shell: apt-mark hold kubeadm
+  register: hold_result
+  changed_when: "'kubeadm set to hold' in hold_result.stdout"
+
+- name: 'Kub Upgrade | Get Version'
+  shell: 'kubeadm version -o short'
+  register: kubeadm_version
+
+- name: 'Kub Upgrade | Print Version'
+  debug:
+        msg: 'Kubeadm version {{ kubeadm_version.stdout }}'
+
+- name: 'Kub Upgrade | Plan Upgrade'
+  shell: 'kubeadm upgrade plan'
+  register: kubeadm_upgrade_plan
+  when: k8s_is_master
+
+- name: 'Kub Upgrade | Print Upgrade Plan'
+  debug:
+        msg: '{{ kubeadm_upgrade_plan.stdout }}'
+  when: k8s_is_master
+
+- name: 'Kub Upgrade | Ask for confirmation'
+  ansible.builtin.pause:
+    prompt: "Are you sure you want to proceed with the upgrade? (yes/no)"
+  register: user_confirmation
+
+- name: 'Kub Upgrade | verify'
+  assert:
+    that: 'user_confirmation.user_input is match("^(yes|y)$", ignorecase=True)'
+    fail_msg: 'Upgrade aborted!'
+    quiet: true
+
+- name: 'Kub Upgrade | Upgrade Kubeadm Master'
+  shell: 'kubeadm upgrade apply {{ kubeadm_version.stdout | replace("v", "") }} --yes'
+  register: kubadm_upgrade_log
+  when: k8s_is_master
+
+- name: 'Kub Upgrade | Upgrade Kubeadm worker'
+  shell: 'kubeadm upgrade node'
+  register: kubadm_upgrade_log
+  when: not k8s_is_master
+
+- name: 'Kub Upgrade | show logs'
+  debug:
+    msg: '{{ kubadm_upgrade_log.stdout }}'

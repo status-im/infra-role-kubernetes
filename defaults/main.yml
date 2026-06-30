@@ -1,5 +1,6 @@
 ---
 k8s_is_master: False
+k8s_action: 'install'
 
 k8s_service_name: 'k8s'
 k8s_service_path: '/etc/kubernetes'
@@ -81,8 +82,14 @@ k8s_ca_cert_hashes: ~
 k8s_kubelet_service_name: 'kubelet'
 k8s_kubelet_port: 10248
 
+# Upgrade
+k8s_upgrade_version: '{{ k8s_version }}'
+
 k8s_consul_port: 8500
 k8s_consul_host: 'localhost'
 k8s_consul_addr: '{{ k8s_consul_host }}:{{ k8s_consul_port }}'
 k8s_consul_catalog_url: 'http://{{ k8s_consul_addr }}/v1/catalog'
+
+
+
 
