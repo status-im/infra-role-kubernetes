@@ -1,8 +1,13 @@
 # Description
 
-Role to deploy a Kubernetes node
+This Role help to manage and setup a Kubernetes node.
+It can be use to:
+* Install a node
+* Upgrade a node
 
-# Usage
+# Installation
+
+Installation is the default mode configured by `k8s_action: install`
 
 ## Master Node
 
@@ -32,9 +37,10 @@ The deployement should, have the following config:
 ```
 open_ports_list:
   kubernetes:
-    - { source: '172.30.64.0/18', comment: 'Allow trafic from Pod Network'   }
-    - { dest: '172.30.64.0/18',   comment: 'Allow trafic to Pod Network'     }
-    - { dest: '172.30.0.0/18',    comment: 'Allow trafic to Service Network' }
+    - { source: '192.168.0.0/16', comment: 'Allow trafic from Pod Network'   }
+    - { dest: '192.168.0.0/16',   comment: 'Allow trafic to Pod Network'     }
+    - { source: '172.16.0.0/12',  comment: 'Allow trafic to Service Network' }
+    - { dest: '172.16.0.0/12',    comment: 'Allow trafic to Service Network' }
  ```
  In case of a Master node, the port `6443` should be open also:
  ```
@@ -42,3 +48,7 @@ open_ports_list:
     - { port: '6443', iifname: 'wg0', ipset: 'bi.test', comment: 'Access for Nodes to join master'}
 
 ```
+
+## Upgrade
+
+Instruction to upgrade a node can be found [here](./UPGRADE.md)
