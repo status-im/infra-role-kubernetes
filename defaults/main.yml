@@ -30,6 +30,8 @@ k8s_packages_lists:
   - 'kubeadm={{ k8s_version }}.*'
 
 k8s_version: '1.36'
+k8s_upgrade_version: '{{ k8s_version }}'
+
 k8s_apt_key_url: 'https://pkgs.k8s.io/core:/stable:/v{{ k8s_version }}/deb/'
 k8s_apt_key_path: '/etc/apt/keyrings/kubernetes-apt-keyring.asc'
 k8s_apt_repo_filename: 'kubernetes.list'
@@ -52,6 +54,14 @@ k8s_master_etcd_port_peers: 2380
 k8s_master_etcd_port_metrics: 2381
 
 k8s_calico_mtu: 1360
+
+k8s_node_labels: {}
+#  key: value
+
+k8s_node_taints: []
+#  - key: 'key'
+#    value: 'value'
+#    effect: 'NoSchedule' # Options: NoSchedule, PreferNoSchedule, NoExecute
 
 # ETCD Backup
 k8s_etcd_backup_service_name: 'dump-k8s-etcd'
@@ -82,14 +92,7 @@ k8s_ca_cert_hashes: ~
 k8s_kubelet_service_name: 'kubelet'
 k8s_kubelet_port: 10248
 
-# Upgrade
-k8s_upgrade_version: '{{ k8s_version }}'
-
 k8s_consul_port: 8500
 k8s_consul_host: 'localhost'
 k8s_consul_addr: '{{ k8s_consul_host }}:{{ k8s_consul_port }}'
 k8s_consul_catalog_url: 'http://{{ k8s_consul_addr }}/v1/catalog'
-
-
-
-

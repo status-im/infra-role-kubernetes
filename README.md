@@ -18,6 +18,8 @@ kubernetes_is_master: True
 
 ## Workers
 
+### Registration
+
 To install a worker, a cluster token must be generated with `kubeadm token create --print-join-command`
 
 ```bash
@@ -28,6 +30,25 @@ kubeadm join ${master_ip}:{master_port} --token ${some_token} --discovery-token-
 ```yaml
 k8s_ca_cert_hashes: '${token}'
 k8s_cluster_token: '${hash}'
+```
+
+### Labels
+
+The node will have as default labels `env={{ env }}` and `stage={{ stage }}` with the values of the ansible deployement.
+
+Additional labels can be added with:
+```
+k8s_node_labels:
+  role: extractions
+```
+### Taints
+
+Taints can be added to the node with:
+```yaml
+k8s_node_taints:
+  - key: 'key'
+    value: 'value'
+    effect: 'NoSchedule' # Options: NoSchedule, PreferNoSchedule, NoExecute
 ```
 
 
