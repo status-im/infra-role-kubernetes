@@ -3,7 +3,9 @@
   file:
     path: '{{ k8s_etcd_backup_path }}'
     state: directory
-    mode: '0755'
+    owner: '{{ k8s_etcd_backup_user }}'
+    group: '{{ k8s_etcd_backup_group }}'
+    mode: '{{ k8s_etcd_backup_dir_mod}}'
 
 
 - name: 'Kubernetes | Create timer for Etcd backup'
@@ -19,10 +21,13 @@
     systemd_timer_start_on_creation: false
     systemd_timer_script_content: |
       #!/usr/bin/env bash
+      umask 077
       bkp_dir={{ k8s_etcd_backup_path }}
       ETCDCTL_API=3 etcdctl snapshot save ${bkp_dir}/etcd-backup.db \
         --endpoints=https://127.0.0.1:2379 \
         --cert=/etc/kubernetes/pki/etcd/server.crt \
         --key=/etc/kubernetes/pki/etcd/server.key \
         --cacert=/etc/kubernetes/pki/etcd/ca.crt
-      chmod 750 -R "${bkp_dir}"
+      # Verify backup integrity
+      etcdctl snapshot status ${bkp_dir}/etcd-backup.db --write-out=json >/dev/null
+      chmod {{ k8s_etcd_backup_dir_mod }} -R "${bkp_dir}"

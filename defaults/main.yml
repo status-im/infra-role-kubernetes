@@ -67,10 +67,11 @@ k8s_node_taints: []
 k8s_etcd_backup_service_name: 'dump-k8s-etcd'
 k8s_etcd_backup_path: '/var/etcd/'
 k8s_etcd_backup_user: 'root'
-k8s_etcd_backup_group: 'kub'
+k8s_etcd_backup_group: 'root'
 k8s_etcd_backup_frequency: 'daily'
 k8s_etcd_backup_timeout: '300'
-
+k8s_etcd_backup_dir_mod: '0700'
+k8s_etcd_backup_file_mode: '0600'
 
 # Vaul config for saving the joining token
 k8s_master_vault_token_path: '{{ env }}/{{ stage }}/kubernetes'
