@@ -85,9 +85,11 @@ k8s_pod_network_config_url: 'https://raw.githubusercontent.com/flannel-io/flanne
 k8s_pod_subnet: '192.168.0.0/16'
 k8s_service_subnet: '172.16.0.0/12'
 k8s_cluster_domain: '{{ env }}.{{ stage }}'
-
+k8s_cluster_token_ttl: '1h'
 k8s_cluster_token: ~
 k8s_ca_cert_hashes: ~
+
+k8s_save_token_vault_enabled: True
 
 k8s_kubelet_service_name: 'kubelet'
 k8s_kubelet_port: 10248
