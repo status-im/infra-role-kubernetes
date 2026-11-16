@@ -97,6 +97,7 @@ k8s_save_token_vault_enabled: True
 
 k8s_kubelet_service_name: 'kubelet'
 k8s_kubelet_port: 10248
+k8s_kubelet_read_only_port: 0
 
 k8s_consul_port: 8500
 k8s_consul_host: 'localhost'

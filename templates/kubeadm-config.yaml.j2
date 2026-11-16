@@ -88,6 +88,7 @@ authorization:
 protectKernelDefaults: true
 rotateCertificates: true
 serverTLSBootstrap: true
+readOnlyPort: {{ k8s_kubelet_read_only_port }}
 ---
 apiVersion: kubeproxy.config.k8s.io/v1alpha1
 kind: KubeProxyConfiguration
