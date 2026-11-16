@@ -4,7 +4,8 @@ k8s_action: 'install'
 
 k8s_service_name: 'k8s'
 k8s_service_path: '/etc/kubernetes'
-k8s_service_logs_path: '/var/lib/kuberntes'
+k8s_service_logs_path: '/var/lob/kuberntes'
+k8s_service_encrypted_path: '{{ k8s_service_path }}/enc'
 
 k8s_group: 'kub'
 k8s_gid: 1000
@@ -72,6 +73,7 @@ k8s_etcd_backup_frequency: 'daily'
 k8s_etcd_backup_timeout: '300'
 k8s_etcd_backup_dir_mod: '0700'
 k8s_etcd_backup_file_mode: '0600'
+#k8s_etcd_encryption_key: ChangeMeIfYouCare
 
 # Vaul config for saving the joining token
 k8s_master_vault_token_path: '{{ env }}/{{ stage }}/kubernetes'
