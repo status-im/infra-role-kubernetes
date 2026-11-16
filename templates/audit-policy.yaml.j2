@@ -3,6 +3,10 @@ apiVersion: audit.k8s.io/v1
 kind: Policy
 omitStages: ["RequestReceived"]
 rules:
+  - level: None  # Drop everything not explicitly allowed
+    resources:
+      - group: ""
+        resources: ["pods", "events"]
   - level: Metadata
     resources:
       - group: ""
@@ -11,6 +15,12 @@ rules:
     resources:
       - group: "rbac.authorization.k8s.io"
       - group: "authentication.k8s.io"
+      - group: "batch"
+      - group: "extensions"
   - level: Request
     verbs: ["create", "update", "patch", "delete", "deletecollection"]
+    resources:
+      - group: ""
+        resources: ["pods", "services", "ingresses"]
   - level: Metadata                           # catch-all
+  - level: Metric
