@@ -1,14 +1,15 @@
+#vim:ft=yaml
 ---
 apiVersion: kubeadm.k8s.io/v1beta4
 kind: InitConfiguration
 nodeRegistration:
-  name: "{{ ansible_hostname }}"  # Replace with your master node name
+  name: "{{ ansible_hostname }}"
   criSocket: "unix:///var/run/containerd/containerd.sock"
   kubeletExtraArgs:
     - name: "node-ip"
       value: "{{ k8s_master_ip }}"
 localAPIEndpoint:
-  advertiseAddress: "0.0.0.0"  # Master's WireGuard IP
+  advertiseAddress: "{{ k8s_master_ip }}"
   bindPort: {{ k8s_master_api_server_port }}
 ---
 apiVersion: kubeadm.k8s.io/v1beta4
@@ -21,9 +22,48 @@ networking:
 apiServer:
   certSANs:
     - "{{ k8s_master_ip }}"
-    - "0.0.0.0"
     - "{{ hostname }}.wg"
     - "{{ k8s_controler_additional_san }}"
+  timeoutForControlPlane: "5m"
+  extraArgs:
+    - name: "encryption-provider-config"
+      value: "{{ k8s_service_encrypted_path }}/encryption-config.yaml"
+    - name: "anonymous-auth"
+      value: "false"
+    - name: "profiling"
+      value: "false"
+    - name: "tls-min-version"
+      value: "VersionTLS12"
+    - name: "authorization-mode"
+      value: "Node,RBAC"
+    - name: "audit-log-path"
+      value: "{{ k8s_service_logs_path }}/audit.log"
+    - name: "audit-policy-file"
+      value: "{{ k8s_service_path }}/audit-policy.yaml"
+    - name: "audit-log-maxage"
+      value: "30"
+    - name: "audit-log-maxbackup"
+      value: "10"
+    - name: "audit-log-maxsize"
+      value: "100"
+    - name: "request-timeout"
+      value: "{{ k8s_master_api_timemout }}"
+  extraVolumes:
+    - name: "encryption-config"
+      hostPath: "{{ k8s_service_encrypted_path }}"
+      mountPath: "/etc/kubernetes/enc"
+      readOnly: true
+      pathType: "DirectoryOrCreate"
+    - name: "k8s-audit-policy"
+      hostPath: "{{ k8s_service_path }}"
+      mountPath: "{{ k8s_service_path }}"
+      readOnly: true
+      pathType: "DirectoryOrCreate"
+    - name: "k8s-audit-logs"
+      hostPath: "{{ k8s_service_logs_path }}"
+      mountPath: "{{ k8s_service_logs_path }}"
+      readOnly: false
+      pathType: "DirectoryOrCreate"
 ---
 kind: KubeletConfiguration
 apiVersion: kubelet.config.k8s.io/v1beta1
@@ -38,9 +78,20 @@ kubeReserved:
   memory: 50M
 enforceNodeAllocatable:
 - pods
+authentication:
+  anonymous:
+    enabled: false
+  webhook:
+    enabled: true
+authorization:
+  mode: Webhook
+protectKernelDefaults: true
+rotateCertificates: true
+serverTLSBootstrap: true
+readOnlyPort: {{ k8s_kubelet_read_only_port }}
 ---
 apiVersion: kubeproxy.config.k8s.io/v1alpha1
 kind: KubeProxyConfiguration
 mode: "iptables"
 iptables:
-  masqueradeAll: false
+  masqueradeAll: true

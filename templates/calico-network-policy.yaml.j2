@@ -1,0 +1,135 @@
+{% assign podSubnet = k8s_pod_subnet | default('192.168.0.0/16') %}
+{% assign serviceSubnet = k8s_service_subnet | default('172.16.0.0/12') %}
+
+{% comment %}
+Calico Network Policies generated via Ansible template
+Uses variables: k8s_pod_subnet, k8s_service_subnet
+These policies enforce pod isolation while allowing required Kubernetes infrastructure communication
+%}
+
+---
+# Default Deny All Policy - Baseline security
+# All traffic is denied by default, only explicitly allowed paths work
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: deny-all
+  namespace: kube-system
+  labels:
+    app.kubernetes.io/name: calico
+    app.kubernetes.io/part-of: kubernetes
+spec:
+  selector: all()
+  types:
+    - Ingress
+    - Egress
+  ingress:
+    - action: Deny
+  egress:
+    - action: Deny
+---
+# Allow DNS Resolution - Required for pod communication
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: allow-dns
+  namespace: kube-system
+  labels:
+    app.kubernetes.io/name: calico
+    app.kubernetes.io/part-of: kubernetes
+spec:
+  selector: k8s-app != "kube-dns"
+  types:
+    - Egress
+  egress:
+    - toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+---
+# Allow Kube-DNS to resolve externally
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: allow-kube-dns-external
+  namespace: kube-system
+  labels:
+    app.kubernetes.io/name: calico
+    app.kubernetes.io/part-of: kubernetes
+spec:
+  selector: k8s-app == "kube-dns"
+  types:
+    - Egress
+  egress:
+    - toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+            - port: "53"
+              protocol: TCP
+---
+# Allow pods to reach the Kubernetes API server (ingress via service subnet)
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: allow-api-server
+  namespace: kube-system
+  labels:
+    app.kubernetes.io/name: calico
+    app.kubernetes.io/part-of: kubernetes
+spec:
+  selector: k8s-app == "kube-system"
+  types:
+    - Ingress
+  ingress:
+    - from:
+        - source:
+            nets:
+              - "{{ serviceSubnet }}"
+---
+# Allow kube-proxy to receive traffic from pod subnet
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: allow-kube-proxy
+  namespace: kube-system
+  labels:
+    app.kubernetes.io/name: calico
+    app.kubernetes.io/part-of: kubernetes
+spec:
+  selector: k8s-app == "kube-proxy"
+  ingress:
+    - from:
+        - source:
+            nets:
+              - "{{ podSubnet }}"
+      toPorts:
+        - ports:
+            - port: "10254"
+              protocol: TCP
+---
+# Allow nodes to reach metadata services
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: allow-metadata
+  namespace: kube-system
+  labels:
+    app.kubernetes.io/name: calico
+    app.kubernetes.io/part-of: kubernetes
+spec:
+  selector: k8s-app in ("kube-apiserver", "kube-scheduler", "kube-controller-manager")
+  types:
+    - Egress
+  egress:
+    - to:
+        - ipn: "0.0.0.0/0"
+          alive: true
+---
+{% comment %}
+Additional policies can be added below based on your workload requirements:
+- Namespace isolation policies
+- Allow specific application communication
+- Egress to external services
+- Ingress from trusted sources
+%%

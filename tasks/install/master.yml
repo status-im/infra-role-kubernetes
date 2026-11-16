@@ -6,7 +6,10 @@
   with_items:
     - 'kubeadm-config.yaml'
     - 'calico.yaml'
+    - 'calico-network-policy.yaml'
     - 'kubernetes-sigs.yaml'
+    - 'audit-policy.yaml'
+    - 'encryption-config.yaml'
 
 - name: "Kubernetes | Install packages"
   apt:
@@ -31,6 +34,12 @@
 - name: 'Kubernetes | Install Pod Network'
   become: yes
   shell: 'kubectl apply -f {{ k8s_service_path }}/calico.yaml'
+  environment:
+    KUBECONFIG: '/etc/kubernetes/admin.conf'
+
+- name: 'Kubernetes | Install Network Policies'
+  become: yes
+  shell: 'kubectl apply -f {{ k8s_service_path }}/calico-network-policy.yaml'
   environment:
     KUBECONFIG: '/etc/kubernetes/admin.conf'
 

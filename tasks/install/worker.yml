@@ -24,11 +24,18 @@
   template:
     src: '{{ item }}.j2'
     dest: '{{ k8s_service_path }}/{{ item }}'
+    mode: '0600'
   with_items:
     - 'worker-config.yaml'
+  no_log: true
 
 - name: 'Kubernetes | Join worker to cluster'
   shell: "kubeadm join --config {{ k8s_service_path }}/worker-config.yaml"
   args:
     chdir: '{{ k8s_service_logs_path }}'
     creates: node_joined.log
+
+- name: 'Kubernetes | Remove worker-config.yaml after joining'
+  file:
+    path: '{{ k8s_service_path }}/worker-config.yaml'
+    state: absent

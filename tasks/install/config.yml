@@ -4,12 +4,16 @@
     name: '{{ k8s_group }}'
     gid: '{{ k8s_gid }}'
 
-- name: 'Kuberntes | Create logs directory'
+- name: 'Kuberntes | Create directories'
   file:
-    path:     '{{ k8s_service_logs_path }}'
+    path:     '{{ item }}'
     state:    directory
     owner:    'root'
     group:    '{{ k8s_group }}'
+  with_items:
+    - '{{ k8s_service_path }}'
+    - '{{ k8s_service_logs_path }}'
+    - '{{ k8s_service_encrypted_path }}'
 
 - name: "Kubernetes | System Updates"
   apt:

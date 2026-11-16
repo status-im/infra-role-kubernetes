@@ -1,6 +1,6 @@
 # TODO: Save Token in Vault
 - name: 'Kubernetes | Generate new token'
-  shell: 'kubeadm token create --print-join-command --ttl 0'
+  shell: 'kubeadm token create --print-join-command --ttl {{ k8s_cluster_token_ttl }}'
   register: token_var
   no_log: true
 
@@ -27,4 +27,5 @@
         token-ca-cert-hash: "{{ token_ca_cert_hash }}"
     status_code: [200, 204]
   no_log: true
+  when: k8s_save_token_vault_enabled
 
