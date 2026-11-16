@@ -47,7 +47,7 @@ apiServer:
     - name: "audit-log-maxsize"
       value: "100"
     - name: "request-timeout"
-      value: "300s"
+      value: "{{ k8s_master_api_timemout }}"
   extraVolumes:
     - name: "encryption-config"
       hostPath: "{{ k8s_service_encrypted_path }}"
