@@ -1,26 +1,35 @@
----
 apiVersion: audit.k8s.io/v1
 kind: Policy
-omitStages: ["RequestReceived"]
+omitStages:
+  - "RequestReceived"
 rules:
-  - level: None  # Drop everything not explicitly allowed
+  # Log mutations to pods, services, and ingresses (must come BEFORE the None rule)
+  - level: Request
+    verbs: ["create", "update", "patch", "delete", "deletecollection"]
+    resources:
+      - group: ""
+        resources: ["pods", "services"]
+      - group: "networking.k8s.io"
+        resources: ["ingresses"]
+
+  # Drop noisy read/watch traffic for pods and all events
+  - level: None
     resources:
       - group: ""
         resources: ["pods", "events"]
+
+  # Log metadata only for secrets and configmaps (never log payloads)
   - level: Metadata
     resources:
       - group: ""
-        resources: ["secrets", "configmaps"]     # never log secret payloads
+        resources: ["secrets", "configmaps"]
+
+  # Log full request and response for sensitive API groups
   - level: RequestResponse
     resources:
       - group: "rbac.authorization.k8s.io"
       - group: "authentication.k8s.io"
       - group: "batch"
-      - group: "extensions"
-  - level: Request
-    verbs: ["create", "update", "patch", "delete", "deletecollection"]
-    resources:
-      - group: ""
-        resources: ["pods", "services", "ingresses"]
-  - level: Metadata                           # catch-all
-  - level: Metric
+
+  # Catch-all: log metadata for everything else
+  - level: Metadata

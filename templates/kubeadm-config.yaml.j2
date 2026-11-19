@@ -1,5 +1,3 @@
-#vim:ft=yaml
----
 apiVersion: kubeadm.k8s.io/v1beta4
 kind: InitConfiguration
 nodeRegistration:
@@ -11,6 +9,8 @@ nodeRegistration:
 localAPIEndpoint:
   advertiseAddress: "{{ k8s_master_ip }}"
   bindPort: {{ k8s_master_api_server_port }}
+timeouts:
+  controlPlaneComponentHealthCheck: "60s"
 ---
 apiVersion: kubeadm.k8s.io/v1beta4
 kind: ClusterConfiguration
@@ -22,14 +22,13 @@ networking:
 apiServer:
   certSANs:
     - "{{ k8s_master_ip }}"
-    - "{{ hostname }}.wg"
+    - "localhost"
+    - "127.0.0.1"
+    - "{{ ansible_hostname }}.wg"
     - "{{ k8s_controler_additional_san }}"
-  timeoutForControlPlane: "5m"
   extraArgs:
     - name: "encryption-provider-config"
       value: "{{ k8s_service_encrypted_path }}/encryption-config.yaml"
-    - name: "anonymous-auth"
-      value: "false"
     - name: "profiling"
       value: "false"
     - name: "tls-min-version"
@@ -39,7 +38,7 @@ apiServer:
     - name: "audit-log-path"
       value: "{{ k8s_service_logs_path }}/audit.log"
     - name: "audit-policy-file"
-      value: "{{ k8s_service_path }}/audit-policy.yaml"
+      value: "{{ k8s_service_policy_path }}/audit-policy.yaml"
     - name: "audit-log-maxage"
       value: "30"
     - name: "audit-log-maxbackup"
@@ -47,16 +46,16 @@ apiServer:
     - name: "audit-log-maxsize"
       value: "100"
     - name: "request-timeout"
-      value: "{{ k8s_master_api_timemout }}"
+      value: "{{ k8s_master_api_timeout }}"
   extraVolumes:
     - name: "encryption-config"
       hostPath: "{{ k8s_service_encrypted_path }}"
-      mountPath: "/etc/kubernetes/enc"
+      mountPath: "{{ k8s_service_encrypted_path }}"
       readOnly: true
       pathType: "DirectoryOrCreate"
     - name: "k8s-audit-policy"
-      hostPath: "{{ k8s_service_path }}"
-      mountPath: "{{ k8s_service_path }}"
+      hostPath: "{{ k8s_service_policy_path }}"
+      mountPath: "{{ k8s_service_policy_path }}"
       readOnly: true
       pathType: "DirectoryOrCreate"
     - name: "k8s-audit-logs"
@@ -67,7 +66,6 @@ apiServer:
 ---
 kind: KubeletConfiguration
 apiVersion: kubelet.config.k8s.io/v1beta1
-runtimeRequestTimeout: "15m"
 cgroupDriver: "systemd"
 resolvConf: /run/systemd/resolve/resolv.conf
 systemReserved:
@@ -90,8 +88,8 @@ rotateCertificates: true
 serverTLSBootstrap: true
 readOnlyPort: {{ k8s_kubelet_read_only_port }}
 ---
-apiVersion: kubeproxy.config.k8s.io/v1alpha1
 kind: KubeProxyConfiguration
+apiVersion: kubeproxy.config.k8s.io/v1alpha1
 mode: "iptables"
 iptables:
   masqueradeAll: true

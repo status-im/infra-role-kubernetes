@@ -1,22 +1,21 @@
 ---
 - name: 'Kubernetes | Create kubeadm config and basic deployment'
   template:
-    src: '{{ item }}.j2'
-    dest: '{{ k8s_service_path }}/{{ item }}'
+    src: '{{ item.file }}.j2'
+    dest: '{{ item.dir | default(k8s_service_path) }}/{{ item.file }}'
   with_items:
-    - 'kubeadm-config.yaml'
-    - 'calico.yaml'
-    - 'calico-network-policy.yaml'
-    - 'kubernetes-sigs.yaml'
-    - 'audit-policy.yaml'
-    - 'encryption-config.yaml'
+    - { file: 'kubeadm-config.yaml' }
+    - { file: 'calico.yaml' }
+    - { file: 'calico-network-policy.yaml' }
+    - { file: 'kubernetes-sigs.yaml' }
+    - { file: 'audit-policy.yaml', dir: '{{ k8s_service_policy_path }}' }
+    - { file: 'encryption-config.yaml', dir: '{{ k8s_service_encrypted_path }}' }
 
 - name: "Kubernetes | Install packages"
   apt:
     name: '{{ k8s_master_packages }}'
     state: present
     update_cache: true
-
 
 - name: 'Kubernetes | Initialize the cluster'
   shell: 'kubeadm init --config /etc/kubernetes/kubeadm-config.yaml'
@@ -34,12 +33,6 @@
 - name: 'Kubernetes | Install Pod Network'
   become: yes
   shell: 'kubectl apply -f {{ k8s_service_path }}/calico.yaml'
-  environment:
-    KUBECONFIG: '/etc/kubernetes/admin.conf'
-
-- name: 'Kubernetes | Install Network Policies'
-  become: yes
-  shell: 'kubectl apply -f {{ k8s_service_path }}/calico-network-policy.yaml'
   environment:
     KUBECONFIG: '/etc/kubernetes/admin.conf'
 

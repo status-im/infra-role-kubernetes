@@ -2,10 +2,11 @@
 k8s_is_master: False
 k8s_action: 'install'
 
-k8s_service_name: 'k8s'
-k8s_service_path: '/etc/kubernetes'
-k8s_service_logs_path: '/var/lob/kuberntes'
+k8s_service_name:           'k8s'
+k8s_service_path:           '/etc/kubernetes'
+k8s_service_logs_path:      '/var/lob/kuberntes'
 k8s_service_encrypted_path: '{{ k8s_service_path }}/enc'
+k8s_service_policy_path:    '{{ k8s_service_path }}/policy'
 
 k8s_group: 'kub'
 k8s_gid: 1000
@@ -23,14 +24,14 @@ k8s_packages_dependencies:
   - lsb-release
 
 k8s_containerd_gpg_url: 'https://download.docker.com/linux/ubuntu/gpg'
-k8s_containerd_apt_repo: 'deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable'
+k8s_containerd_apt_repo: 'deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable'
 k8s_containerd_config_dir: '/etc/containerd'
 
 k8s_packages_lists:
   - 'kubelet={{ k8s_version }}.*'
   - 'kubeadm={{ k8s_version }}.*'
 
-k8s_version: '1.36'
+k8s_version: '1.37'
 k8s_upgrade_version: '{{ k8s_version }}'
 
 k8s_apt_key_url: 'https://pkgs.k8s.io/core:/stable:/v{{ k8s_version }}/deb/'
@@ -44,10 +45,10 @@ k8s_master_kubadmin_config_path: '/etc/kubernetes/kubeadm-config.yaml'
 #k8s_master_ip: '10.10.10.10'
 # Api Server
 k8s_master_api_server_port: 6443
-k8s_master_api_timemout: '90s'
+k8s_master_api_timeout: '300s'
 # Controller Manager
 k8s_master_controller_manager_port: 10257
-k8s_controler_additional_san: '{{ hostname }}.status.im'
+k8s_controler_additional_san: '{{ ansible_hostname }}.status.im'
 # Scheduler
 k8s_master_scheduler_port: 10259
 # etc
@@ -77,19 +78,17 @@ k8s_etcd_backup_file_mode: '0600'
 #k8s_etcd_encryption_key: ChangeMeIfYouCare
 
 # Vaul config for saving the joining token
-k8s_master_vault_token_path: '{{ env }}/{{ stage }}/kubernetes'
-vault_token: '{{ lookup("ansible.builtin.env", "VAULT_TOKEN")}}'
-vault_addr:             '{{ lookup("ansible.builtin.env", "VAULT_ADDR") }}'
-vault_ca_path:          '/certs/vault-ca.crt'
-vault_client_cert_path: '/certs/vault-client.crt'
-vault_client_key_path:  '/certs/vault-client.key'
+k8s_master_vault_token_path:  '{{ env }}/{{ stage }}/kubernetes/tokens'
+vault_token:                  '{{ lookup("ansible.builtin.env", "VAULT_TOKEN")}}'
+vault_addr:                   '{{ lookup("ansible.builtin.env", "VAULT_ADDR") }}'
+vault_ca_path:                '{{ lookup("ansible.builtin.env", "VAULT_CACERT") }}'
+vault_client_cert_path:       '{{ lookup("ansible.builtin.env", "VAULT_CLIENT_PATH") }}'
+vault_client_key_path:        '{{ lookup("ansible.builtin.env", "VAULT_CLIENT_KEY") }}'
 
-k8s_pod_network_config_url: 'https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml'
-
-k8s_pod_subnet: '192.168.0.0/16'
-k8s_service_subnet: '172.16.0.0/12'
-k8s_cluster_domain: '{{ env }}.{{ stage }}'
-k8s_cluster_token_ttl: '1h'
+k8s_pod_subnet:         '192.168.0.0/16'
+k8s_service_subnet:     '172.16.0.0/12'
+k8s_cluster_domain:     '{{ env }}.{{ stage }}'
+k8s_cluster_token_ttl:  '1h'
 k8s_cluster_token: ~
 k8s_ca_cert_hashes: ~
 

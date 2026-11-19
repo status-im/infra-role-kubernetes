@@ -21,12 +21,7 @@ nodeRegistration:
   - name: node-labels
     value: "{{ k8s_node_labels | dict2items | map('join', '=') | join(',') }},env={{ env }},stage={{ stage }}"
   name: {{ ansible_hostname }}
-  taints: 
-    {% for taint in k8s_node_taints %}
-    - key: "{{ taint.key }}"
-      value: "{{ taint.value }}"
-      effect: "{{ taint.effect }}"
-    {% endfor %}
+  taints: []
 timeouts:
   controlPlaneComponentHealthCheck: 4m0s
   discovery: 5m0s

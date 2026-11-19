@@ -6,7 +6,7 @@
     consul_config_name: 'kubernetes-master'
     consul_services:
       - name:     'k8s-api-server'
-        id:       'k8s-api-server-{{ hostname }}'
+        id:       'k8s-api-server-{{ ansible_hostname }}'
         tags:     ['k8s', 'api-server', 'kub-{{ env }}-{{ stage }}']
         port:     '{{ k8s_master_api_server_port }}'
         address:  '{{ ansible_local.wireguard.address }}'
@@ -16,7 +16,7 @@
             type: 'tcp'
             tcp: '{{ ansible_local.wireguard.address }}:{{ k8s_master_api_server_port }}'
       - name:     'k8s-etcd-metrics'
-        id:       'k8s-etcd-{{ hostname }}'
+        id:       'k8s-etcd-{{ ansible_hostname }}'
         tags:     ['k8s', 'etcd']
         port:     '{{ k8s_master_etcd_port_metrics }}'
         address:  '{{ ansible_local.wireguard.address }}'
@@ -32,7 +32,7 @@
     consul_config_name: 'kubelet'
     consul_services:
       - name:     'k8s-kubelet'
-        id:       'k8s-kubelet-{{ hostname }}'
+        id:       'k8s-kubelet-{{ ansible_hostname }}'
         tags:     ['k8s', 'kubelet']
         port:     '{{ k8s_kubelet_port }}'
         address:  '{{ ansible_local.wireguard.address }}'

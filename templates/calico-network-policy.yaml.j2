@@ -1,12 +1,3 @@
-{% assign podSubnet = k8s_pod_subnet | default('192.168.0.0/16') %}
-{% assign serviceSubnet = k8s_service_subnet | default('172.16.0.0/12') %}
-
-{% comment %}
-Calico Network Policies generated via Ansible template
-Uses variables: k8s_pod_subnet, k8s_service_subnet
-These policies enforce pod isolation while allowing required Kubernetes infrastructure communication
-%}
-
 ---
 # Default Deny All Policy - Baseline security
 # All traffic is denied by default, only explicitly allowed paths work
@@ -85,7 +76,7 @@ spec:
     - from:
         - source:
             nets:
-              - "{{ serviceSubnet }}"
+              - "{{ k8s_service_subnet }}"
 ---
 # Allow kube-proxy to receive traffic from pod subnet
 apiVersion: projectcalico.org/v3
@@ -102,7 +93,7 @@ spec:
     - from:
         - source:
             nets:
-              - "{{ podSubnet }}"
+              - "{{ k8s_pod_subnet }}"
       toPorts:
         - ports:
             - port: "10254"
@@ -126,10 +117,8 @@ spec:
         - ipn: "0.0.0.0/0"
           alive: true
 ---
-{% comment %}
-Additional policies can be added below based on your workload requirements:
-- Namespace isolation policies
-- Allow specific application communication
-- Egress to external services
-- Ingress from trusted sources
-%%
+#Additional policies can be added below based on your workload requirements:
+#- Namespace isolation policies
+#- Allow specific application communication
+#- Egress to external services
+#- Ingress from trusted sources

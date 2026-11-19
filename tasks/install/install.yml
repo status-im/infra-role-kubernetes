@@ -6,9 +6,11 @@
     update_cache: yes
 
 - name: "Kubernetes | Add Docker GPG key"
-  apt_key:
-    url: '{{ k8s_containerd_gpg_url }}'
-    state: present
+  ansible.builtin.get_url:
+    url: "{{ k8s_containerd_gpg_url }}"
+    dest: /etc/apt/keyrings/docker.asc
+    mode: '0644'
+    force: true
 
 - name: "Kubernetes | Add Docker repository"
   apt_repository:

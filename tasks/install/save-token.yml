@@ -1,4 +1,3 @@
-# TODO: Save Token in Vault
 - name: 'Kubernetes | Generate new token'
   shell: 'kubeadm token create --print-join-command --ttl {{ k8s_cluster_token_ttl }}'
   register: token_var
@@ -11,21 +10,13 @@
   no_log: true
 
 - name: 'Kubernetes | Save a secret to HashiCorp Vault via REST API'
-  ansible.builtin.uri:
-    url: "{{ vault_addr }}/v1/secret/data/{{ k8s_master_vault_token_path }}"
-    method: POST
-    ca_path:     '{{ vault_ca_path }}'
-    client_cert: '{{ vault_client_cert_path }}'
-    client_key:  '{{ vault_client_key_path }}'
-    headers:
-      X-Vault-Token: "{{ vault_token }}"
-      Content-Type: "application/json"
-    body_format: json
-    body:
+  community.hashi_vault.vault_write:
+    path: "secret/data/{{ k8s_master_vault_token_path }}"
+    data:
       data:
         token: "{{ token }}"
         token-ca-cert-hash: "{{ token_ca_cert_hash }}"
-    status_code: [200, 204]
-  no_log: true
+  delegate_to: localhost
+  become: false
   when: k8s_save_token_vault_enabled
 
