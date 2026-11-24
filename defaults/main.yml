@@ -43,6 +43,7 @@ k8s_master_packages:
   - 'etcd-client'
 k8s_master_kubadmin_config_path: '/etc/kubernetes/kubeadm-config.yaml'
 #k8s_master_ip: '10.10.10.10'
+k8s_controle_plane_domain: 'controle-plane.example.org'
 # Api Server
 k8s_master_api_server_port: 6443
 k8s_master_api_timeout: '300s'
